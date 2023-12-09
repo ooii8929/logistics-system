@@ -2,6 +2,7 @@
 
 1. create key pairs in console by manual - "logistics-system"
  chmod 600 logistics-system.pem
+ ssh-keygen -R 35.73.82.22
  ssh -v -i logistics-system.pem ubuntu@3.112.101.105
 
 

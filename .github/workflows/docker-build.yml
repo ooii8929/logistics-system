@@ -11,12 +11,17 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    environment: prod # 添加此行以使用“prod”环境。
+    environment: prod
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3.4.1
 
+    - name: Set Image Version
+      run: |
+        export IMAGE_VERSION=$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g' | tr -d '[[:space:]]')
+        echo "IMAGE_VERSION=$IMAGE_VERSION" >> $GITHUB_ENV
+      
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1.3.3
       with:
@@ -44,4 +49,4 @@ jobs:
       with:
         context: ./app
         push: true
-        tags: ${{ steps.login-ecr.outputs.registry }}/logistics-track:${{ github.sha }}
+        tags: ${{ steps.login-ecr.outputs.registry }}/logistics-track:${{ env.IMAGE_VERSION }}

@@ -15,14 +15,61 @@ data "aws_ami" "ubuntu_2204" {
 }
 
 
+data "aws_iam_policy_document" "ecr_pull_access" {
+  statement {
+    actions = [
+      "ecr:GetDownloadUrlForLayer",
+      "ecr:BatchGetImage",
+      "ecr:BatchCheckLayerAvailability",
+      "ecr:GetAuthorizationToken",
+    ]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_role" "ecr_pull_role" {
+  name = "ecr-pull-role"
+
+  # Remove jsondecode()
+  assume_role_policy = data.aws_iam_policy_document.ec2_assume_role_policy.json
+}
+resource "aws_iam_role_policy" "ecr_pull_policy" {
+  name   = "your-policy-name"
+  role   = aws_iam_role.ecr_pull_role.id
+  policy = data.aws_iam_policy_document.ecr_pull_access.json
+}
+
+data "aws_iam_policy_document" "ec2_assume_role_policy" {
+  statement {
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+  }
+}
+
+
 resource "aws_instance" "web" {
   ami           = data.aws_ami.ubuntu_2204.id
   subnet_id   = aws_subnet.main.id
-  associate_public_ip_address = true
+  # associate_public_ip_address = true
   security_groups = [aws_security_group.allow_tls.id]
   key_name = "logistics-system"
   instance_type = "t3.micro"
   user_data = file("./init-instance.sh")
+    # 添加这一行以将角色关联到实例
+  iam_instance_profile = aws_iam_instance_profile.ecr_pull_profile.name
+
+}
+resource "aws_eip" "lb" {
+  instance = aws_instance.web.id
+  domain   = "vpc"
+}
+resource "aws_iam_instance_profile" "ecr_pull_profile" {
+  name = "your-instance-profile-name"
+  role = aws_iam_role.ecr_pull_role.name
 }
 
 resource "aws_security_group" "allow_tls" {
@@ -48,7 +95,8 @@ resource "aws_security_group" "allow_tls" {
 
 }
 
-output "instance_public_ip" {
-  value       = aws_instance.web.public_ip
-  description = "The public IP address of the web instance"
+
+output "eip" {
+  value = aws_eip.lb.public_ip
+  description = "The Elastic IP address associated with the instance"
 }

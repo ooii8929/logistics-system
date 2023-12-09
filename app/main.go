@@ -149,7 +149,7 @@ func GenerateFakeData(c *gin.Context, num int) {
 
 func main() {
 
-    redisAddr := "172.17.0.2:6379"
+    redisAddr := "redis-server:6379"
     redisPassword := ""
     redisDB := 0
 
