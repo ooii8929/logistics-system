@@ -162,6 +162,13 @@ func main() {
 
     r := gin.Default()
 
+    r.GET("/hello", func(c *gin.Context) {
+        response := gin.H{
+            "message": "Hello, World!",
+        }
+        c.JSON(http.StatusOK, response)
+    })
+
     r.GET("/fake", func(c *gin.Context) {
         numStr := c.DefaultQuery("num", "0")
         num, _ := strconv.Atoi(numStr)
