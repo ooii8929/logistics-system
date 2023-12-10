@@ -14,7 +14,7 @@ import (
 func CreateDatabaseAndServe() *gorm.DB {
     // 替換為您的 MySQL 用戶名、密碼和服務器地址
     username := "root"
-    password := ""
+    password := "my-secret-password"
     host := "my-mysql"
     port := 3306
 
