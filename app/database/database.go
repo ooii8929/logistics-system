@@ -15,7 +15,7 @@ func CreateDatabaseAndServe() *gorm.DB {
     // 替換為您的 MySQL 用戶名、密碼和服務器地址
     username := "root"
     password := ""
-    host := "localhost"
+    host := "my-mysql"
     port := 3306
 
     // 連接到 MySQL 服務器（不指定數據庫名稱）
