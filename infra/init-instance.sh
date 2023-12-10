@@ -31,9 +31,7 @@ docker run -d --name redis-server -p 6379:6379 redis
 # 拉取并运行您的应用程序镜像
 sudo docker pull ${ECR_REPOSITORY}:latest
 docker run -d --name your-app-container \
-           -p 8080:8080 \ # 调整端口映射，根据您的应用程序需要
-           --link my-mysql:mysql \
-           --link redis-server:redis \
+           -p 8080:8080 \
            ${ECR_REPOSITORY}:latest
 
 # 配置 Nginx
