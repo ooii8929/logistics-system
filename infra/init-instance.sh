@@ -21,18 +21,29 @@ ECR_LOGIN_PASSWORD=$(aws ecr get-login-password --region ${AWS_REGION})
 echo ${ECR_LOGIN_PASSWORD} | sudo docker login -u AWS --password-stdin ${ECR_REGISTRY}
 
 sudo docker login -u AWS -p ${ECR_LOGIN_PASSWORD} ${ECR_REGISTRY}
+docker network create my_app_network
 
 # 拉取并运行MySQL和Redis
 sudo docker pull mysql:latest
 sudo docker pull redis:latest
-docker run --name my-mysql -e MYSQL_ROOT_PASSWORD=my-secret-password -p 3306:3306 -d mysql:latest
-docker run -d --name redis-server -p 6379:6379 redis
+docker run --name my-mysql \
+           --network my_app_network \
+           -e MYSQL_ROOT_PASSWORD=my-secret-password \
+           -p 3306:3306 \
+           -d mysql:latest
+
+docker run -d --name redis-server \
+           --network my_app_network \
+           -p 6379:6379 \
+           redis
 
 # 拉取并运行您的应用程序镜像
 sudo docker pull ${ECR_REPOSITORY}:latest
-docker run -d --name your-app-container \
+docker run --name your-app-container \
+           --network my_app_network \
            -p 8080:8080 \
            ${ECR_REPOSITORY}:latest
+
 
 # 配置 Nginx
 sudo bash -c 'cat > /etc/nginx/sites-available/default << EOL
