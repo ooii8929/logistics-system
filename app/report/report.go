@@ -36,8 +36,8 @@ func GetTrackingSummary() (map[string]TrackingSummary, error) {
 
     query := `
     SELECT status, COUNT(*) as total_records
-    FROM tracking_status
-    GROUP BY status;
+    FROM trackings
+    GROUP BY tracking_status;
     `
 
     rows, err := db.Raw(query).Rows()
