@@ -17,6 +17,7 @@ import (
     "logistics-track/models"
     "logistics-track/helpers"
     "logistics-track/database"
+    "logistics-track/report"
 
     // Redis connection
     "logistics-track/redis"
@@ -142,11 +143,6 @@ func GenerateFakeData(c *gin.Context, num int) {
     c.JSON(http.StatusOK, trackingList)
 }
 
-
-
-
-
-
 func main() {
 
     redisAddr := "redis-server:6379"
@@ -179,6 +175,24 @@ func main() {
             response := ApiResponse{Status: "error", Error: nil}
             c.JSON(http.StatusBadRequest, response)
         }
+    })
+
+    r.GET("/generate_report", func(c *gin.Context) {
+        summary, err := GetTrackingSummary(db)
+        if err != nil {
+            c.JSON(http.StatusInternalServerError, gin.H{
+                "status": "error",
+                "error":  fmt.Sprintf("Failed to get tracking summary: %v", err),
+            })
+            return
+        }
+    
+        // 使用查询结果构建响应
+        response := gin.H{
+            "created_dt":        time.Now().Format(time.RFC3339),
+            "trackingSummary":   summary,
+        }
+        c.JSON(http.StatusOK, response)
     })
 
     r.GET("/query", func(c *gin.Context) {
