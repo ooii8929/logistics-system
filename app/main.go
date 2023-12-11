@@ -158,6 +158,13 @@ func main() {
 
     r := gin.Default()
 
+    r.GET("/", func(c *gin.Context) {
+        response := gin.H{
+            "message": "Hello, World!",
+        }
+        c.JSON(http.StatusOK, response)
+    })
+
     r.GET("/hello", func(c *gin.Context) {
         response := gin.H{
             "message": "Hello, World!",
