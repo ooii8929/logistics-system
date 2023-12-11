@@ -178,7 +178,7 @@ func main() {
     })
 
     r.GET("/generate_report", func(c *gin.Context) {
-        summary, err := GetTrackingSummary(db)
+        summary, err := report.GetTrackingSummary()
         if err != nil {
             c.JSON(http.StatusInternalServerError, gin.H{
                 "status": "error",
