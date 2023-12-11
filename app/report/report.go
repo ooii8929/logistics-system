@@ -7,6 +7,10 @@ import (
     "log"
     "time"
 
+    // Upload to S3
+    "net/http"
+    "crypto/tls"
+
     "gorm.io/driver/mysql"
     "gorm.io/gorm"
 
@@ -77,11 +81,17 @@ func GetTrackingSummary() (map[string]TrackingSummary, error) {
 }
 
 func uploadToS3(jsonData []byte, bucket, key string) error {
-    // 创建一个新的 AWS session，默认从环境变量、配置文件或 EC2 角色中获取凭据
+    // 修改后的创建 session 的代码
     sess, err := session.NewSession(&aws.Config{
-        Region: aws.String("ap-northeast-1")},
-    )
-
+        Region: aws.String("ap-northeast-1"),
+        S3Disable100Continue: aws.Bool(true),
+        HTTPClient: &http.Client{
+            Transport: &http.Transport{
+                TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+            },
+        },
+    })
+    
     if err != nil {
         return fmt.Errorf("failed to create AWS session: %v", err)
     }
