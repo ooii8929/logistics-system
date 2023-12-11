@@ -5,7 +5,7 @@ import (
     "encoding/json"
     "fmt"
     "log"
-	"time"
+    "time"
 
     "gorm.io/driver/mysql"
     "gorm.io/gorm"
@@ -15,10 +15,9 @@ import (
     "github.com/aws/aws-sdk-go/service/s3"
 )
 
-
 type TrackingSummary struct {
-    Status       string `json:"status" gorm:"column:status"`
-    TotalRecords int    `json:"total_records" gorm:"column:total_records"`
+    TrackingStatus string `json:"tracking_status" gorm:"column:tracking_status"`
+    TotalRecords   int    `json:"total_records" gorm:"column:total_records"`
 }
 
 func GetTrackingSummary() (map[string]TrackingSummary, error) {
@@ -35,7 +34,7 @@ func GetTrackingSummary() (map[string]TrackingSummary, error) {
     }
 
     query := `
-    SELECT status, COUNT(*) as total_records
+    SELECT tracking_status, COUNT(*) as total_records
     FROM trackings
     GROUP BY tracking_status;
     `
@@ -49,10 +48,10 @@ func GetTrackingSummary() (map[string]TrackingSummary, error) {
     summary := make(map[string]TrackingSummary)
     for rows.Next() {
         var s TrackingSummary
-        if err := rows.Scan(&s.Status, &s.TotalRecords); err != nil {
+        if err := rows.Scan(&s.TrackingStatus, &s.TotalRecords); err != nil {
             return nil, err
         }
-        summary[s.Status] = s
+        summary[s.TrackingStatus] = s
     }
 
     // 将摘要信息转换为 JSON 数据
@@ -73,7 +72,6 @@ func GetTrackingSummary() (map[string]TrackingSummary, error) {
     if err := uploadToS3(jsonData, "alvin-report", jsonFilename); err != nil {
         return nil, fmt.Errorf("failed to upload to S3: %v", err)
     }
-
 
     return summary, nil
 }
