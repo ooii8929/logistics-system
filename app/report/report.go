@@ -83,15 +83,15 @@ func GetTrackingSummary() (map[string]TrackingSummary, error) {
 func uploadToS3(jsonData []byte, bucket, key string) error {
     // 修改后的创建 session 的代码
     sess, err := session.NewSession(&aws.Config{
-        Region: aws.String("ap-northeast-1"),
-        S3Disable100Continue: aws.Bool(true),
+        Region:                 aws.String("ap-northeast-1"),
+        S3Disable100Continue:   aws.Bool(true),
         HTTPClient: &http.Client{
             Transport: &http.Transport{
                 TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
             },
         },
     })
-    
+
     if err != nil {
         return fmt.Errorf("failed to create AWS session: %v", err)
     }
@@ -112,8 +112,6 @@ func uploadToS3(jsonData []byte, bucket, key string) error {
     if err != nil {
         return fmt.Errorf("failed to put object to S3: %v", err)
     }
-
-    log.Printf("Successfully uploaded JSON to S3: bucket=%s, key=%s", bucket, key)
 
     return nil
 }
