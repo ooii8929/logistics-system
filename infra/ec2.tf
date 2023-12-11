@@ -27,16 +27,34 @@ data "aws_iam_policy_document" "ecr_pull_access" {
   }
 }
 
+data "aws_iam_policy_document" "s3_upload_policy" {
+  statement {
+    actions = [
+      "s3:PutObject",
+      "s3:PutObjectAcl",
+    ]
+    resources = ["${aws_s3_bucket.report.arn}/*"]
+  }
+}
+
+
 resource "aws_iam_role" "ecr_pull_role" {
   name = "ecr-pull-role"
 
   # Remove jsondecode()
   assume_role_policy = data.aws_iam_policy_document.ec2_assume_role_policy.json
 }
+
 resource "aws_iam_role_policy" "ecr_pull_policy" {
-  name   = "your-policy-name"
+  name   = "ecr-pull"
   role   = aws_iam_role.ecr_pull_role.id
   policy = data.aws_iam_policy_document.ecr_pull_access.json
+}
+
+resource "aws_iam_role_policy" "s3_push_policy" {
+  name   = "S3UploadPolicy"
+  role   = aws_iam_role.ecr_pull_role.id
+  policy = data.aws_iam_policy_document.s3_upload_policy.json
 }
 
 data "aws_iam_policy_document" "ec2_assume_role_policy" {
