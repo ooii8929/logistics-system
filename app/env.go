@@ -36,11 +36,9 @@ func (e *Environment) load() error {
     e.RedisAddr = os.Getenv("redis-server:6379")
 	e.RedisPassword = os.Getenv("my-myredis-password")
 
-    redisDB, err := strconv.Atoi(os.Getenv("0"))
-    if err != nil {
-        return err
-    }
-    e.RedisDB = redisDB
+	// redisDBStr := os.Getenv("REDIS_DB")
+    // redisDB, err := strconv.Atoi(redisDBStr)
+    // e.RedisDB = redisDB
 
     return nil
 }

@@ -97,7 +97,7 @@ func main() {
         return
     }
 
-    client, err := redis.ConnectRedis(env.RedisAddr, env.RedisPassword, env.RedisDB)
+    client, err := redis.ConnectRedis(env.RedisAddr, "", env.RedisDB)
     if err != nil {
         panic(err)
     }
