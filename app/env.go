@@ -17,28 +17,23 @@ type Environment struct {
 }
 
 func (e *Environment) load() error {
-    e.DBUsername = os.Getenv("root")
-    e.DBPassword = os.Getenv("my-mysql-password")
-    e.DBHost = os.Getenv("my-mysql")
+    e.DBUsername = os.Getenv("DB_USERNAME")
+    e.DBPassword = os.Getenv("DB_PASSWORD")
+    e.DBHost = os.Getenv("DB_HOST")
 
-	// local
-	// e.DBPassword = os.Getenv("123456")
-    // e.DBHost = os.Getenv("my-mysql")
-
-    dbPort, err := strconv.Atoi(os.Getenv("3306"))
+    dbPortStr := os.Getenv("DB_PORT")
+    dbPort, err := strconv.Atoi(dbPortStr)
     if err != nil {
         return err
     }
     e.DBPort = dbPort
 
-    e.DBName = os.Getenv("logistics")
+    e.DBName = os.Getenv("DB_NAME")
 
-    e.RedisAddr = os.Getenv("redis-server:6379")
-	e.RedisPassword = os.Getenv("my-myredis-password")
+    e.RedisAddr = os.Getenv("REDIS_ADDR")
+    e.RedisPassword = os.Getenv("REDIS_PASSWORD")
 
-	// redisDBStr := os.Getenv("REDIS_DB")
-    // redisDB, err := strconv.Atoi(redisDBStr)
-    // e.RedisDB = redisDB
+    // RedisDB remains commented out as per your code
 
     return nil
 }
