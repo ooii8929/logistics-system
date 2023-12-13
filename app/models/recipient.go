@@ -7,5 +7,5 @@ type Recipient struct {
     Name     string
     Address  string
     Phone    string
-    CreatedDt time.Time
+    CreatedDt  time.Time `gorm:"column:created_dt"`
 }

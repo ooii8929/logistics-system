@@ -7,7 +7,6 @@ import (
     "fmt"
 
     // Fake API
-    "math/rand"
     "strconv"
 
     // Query API
@@ -27,23 +26,16 @@ import (
     "github.com/gin-gonic/gin"
 )
 
-type TrackingStatus string
-
-const (
-    Created           TrackingStatus = "Created"
-    PackageReceived   TrackingStatus = "Package received"
-    InTransit         TrackingStatus = "In transit"
-    OutForDelivery    TrackingStatus = "Out for delivery"
-    DeliveryAttempted TrackingStatus = "Delivery attempted"
-    Delivered         TrackingStatus = "Delivered"
-    ReturnedToSender  TrackingStatus = "Returned to sender"
-    Exception         TrackingStatus = "Exception"
-)
-
 // Add your other type definitions and createTables functions here
 type ApiResponse struct {
     Status string      `json:"status"`
     Error  interface{} `json:"error"`
+}
+
+type ApiResponseWithTrackingList struct {
+    Status   string             `json:"status"`
+    Error    string             `json:"error,omitempty"`
+    Trackings []models.Tracking `json:"trackings,omitempty"`
 }
 
 // Add this type definition
@@ -95,61 +87,17 @@ func queryAPI(db *gorm.DB, sno int) ResponseData {
     }
 }
 
-
-func GenerateFakeData(c *gin.Context, num int) {
-    db := database.CreateDatabaseAndServe()
-
-    allStatuses := []TrackingStatus{Created, PackageReceived, InTransit, OutForDelivery, DeliveryAttempted, Delivered, ReturnedToSender, Exception}
-    trackingList := make([]models.Tracking, 0)
-
-    if num > 0 {
-        // Insert fake locations
-        for i := 0; i < num; i++ {
-            loc := models.Location{Title: randomString(10), City: randomString(5), Address: randomString(15)}
-            db.Create(&loc)
-        }
-
-        // Insert fake recipients
-        for i := 0; i < num; i++ {
-            rec := models.Recipient{Name: randomString(5), Address: randomString(15), Phone: randomString(10), CreatedDt: time.Now()}
-            db.Create(&rec)
-        }
-
-        // Insert fake trackings
-        for i := 1; i < num; i++ {
-            tr := models.Tracking{
-                TrackingStatus:    string(allStatuses[rand.Intn(len(allStatuses))]),
-                RecipientId:         rand.Intn(num) + 1,
-                CurrentLocation:   rand.Intn(num)+1,
-                EstimatedDelivery: time.Now().Add(time.Duration(rand.Intn(168)) * time.Hour),
-                CreatedDt:         time.Now(),
-                UpdatedDt:         time.Now(),
-            }
-            db.Create(&tr)
-            trackingList = append(trackingList, tr)
-        }
-
-        // Insert fake tracking histories
-        for i := 0; i < num; i++ {
-            trhist := models.TrackingHistory{
-                TrackingStatus: string(allStatuses[rand.Intn(len(allStatuses))]),
-                Sno:            rand.Intn(num) + 1,
-                LocationID:     rand.Intn(num) + 1,
-                CreatedDt:      time.Now(),
-            }
-            db.Create(&trhist)
-        }
-    }
-    c.JSON(http.StatusOK, trackingList)
-}
-
 func main() {
 
-    redisAddr := "redis-server:6379"
-    redisPassword := ""
-    redisDB := 0
+    // Load environment variables.
+    env := &Environment{}
+    err := env.load()
+    if err != nil {
+        log.Printf("Error loading environment variables: %v", err)
+        return
+    }
 
-    client, err := redis.ConnectRedis(redisAddr, redisPassword, redisDB)
+    client, err := redis.ConnectRedis(env.RedisAddr, env.RedisPassword, env.RedisDB)
     if err != nil {
         panic(err)
     }
@@ -165,27 +113,55 @@ func main() {
         c.JSON(http.StatusOK, response)
     })
 
-    r.GET("/hello", func(c *gin.Context) {
-        response := gin.H{
-            "message": "Hello, World!",
+    r.GET("/init-database", func(c *gin.Context) {
+
+        err := database.CreateAndInitializeDatabase(env.DBUsername, env.DBPassword, env.DBHost, env.DBPort, env.DBName)
+        if err != nil {
+            log.Printf("Failed to create and initialize database: %v", err)
+    
+            c.JSON(500, gin.H{
+                "status": "failed",
+                "error":  "Failed to create and initialize the database",
+            })
+            return
         }
-        c.JSON(http.StatusOK, response)
+    
+        c.JSON(200, gin.H{
+            "status": "success",
+            "message": "Database successfully created and initialized",
+        })
     })
+    
 
     r.GET("/fake", func(c *gin.Context) {
         numStr := c.DefaultQuery("num", "0")
         num, _ := strconv.Atoi(numStr)
-        
+
+        db, err := database.ConnectToMySQLwithTable(env.DBUsername, env.DBPassword, env.DBHost, env.DBName, env.DBPort)
+        if err != nil {
+            log.Fatalf("Failed to connect to MySQL: %v", err)
+        }
+
         if num > 0 {
-            GenerateFakeData(c, num)
+            trackings := database.GenerateFakeData(db, num)
+            response := ApiResponseWithTrackingList{
+                Status:    "success",
+                Trackings: trackings,
+            }
+            c.JSON(http.StatusOK, response)
         } else {
-            response := ApiResponse{Status: "error", Error: nil}
+            response := ApiResponse{Status: "error", Error: "Invalid parameter"}
             c.JSON(http.StatusBadRequest, response)
         }
     })
 
-    r.GET("/generate_report", func(c *gin.Context) {
-        summary, err := report.GetTrackingSummary()
+    r.GET("/generate-report", func(c *gin.Context) {
+
+        db, err := database.ConnectToMySQLwithTable(env.DBUsername, env.DBPassword, env.DBHost, env.DBName, env.DBPort)
+        if err != nil {
+            log.Fatalf("Failed to connect to MySQL: %v", err)
+        }
+        summary, err := report.GetTrackingSummary(db)
         if err != nil {
             c.JSON(http.StatusInternalServerError, gin.H{
                 "status": "error",
@@ -211,7 +187,10 @@ func main() {
             return
         }
 
-        db := database.CreateDatabaseAndServe()
+        db, err := database.ConnectToMySQLwithTable(env.DBUsername, env.DBPassword, env.DBHost, env.DBName, env.DBPort)
+        if err != nil {
+            log.Fatalf("Failed to connect to MySQL: %v", err)
+        }
         responseData := queryAPI(db, snoInt)
 
         if responseData.Error != "" {
