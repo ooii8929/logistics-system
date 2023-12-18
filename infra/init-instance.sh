@@ -27,7 +27,8 @@ docker network create my_app_network
 # 拉取并运行MySQL和Redis
 
 sudo docker pull redis:latest
-docker run -d --name logistics-system \
+sudo docker pull ${ECR_REPOSITORY_DATABASE}:latest
+docker run -d --name logistics-db \
            --network my_app_network \
            -p 3306:3306 \
            ${ECR_REPOSITORY_DATABASE}:latest
@@ -42,11 +43,11 @@ docker run -d --name redis-server -p 6379:6379 -v "$(pwd)/redis.conf:/usr/local/
 
 
 # 拉取并运行您的应用程序镜像
-sudo docker pull ${ECR_REPOSITORY}:latest
+sudo docker pull ${ECR_REPOSITORY_APPLICATION}:latest
 docker run -d --name logistics-system \
            --network my_app_network \
            -p 8080:8080 \
-           ${ECR_REPOSITORY}:latest
+           ${ECR_REPOSITORY_APPLICATION}:latest
 
 
 # 配置 Nginx

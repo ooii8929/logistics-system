@@ -107,7 +107,7 @@ func main() {
 
     r.GET("/init-database", func(c *gin.Context) {
 
-        err := database.CreateAndInitializeDatabase("root", "", "localhost", 3306, "logistics")
+        err := database.CreateAndInitializeDatabase("my_user", "my_password", "logistics-db", 3306, "logistics")
         if err != nil {
             log.Printf("Failed to create and initialize database: %v", err)
     
@@ -129,7 +129,7 @@ func main() {
         numStr := c.DefaultQuery("num", "0")
         num, _ := strconv.Atoi(numStr)
 
-        db, err := database.ConnectToMySQLwithTable("root", "", "localhost", "logistics", 3306)
+        db, err := database.ConnectToMySQLwithTable("my_user", "my_password", "logistics-db", "logistics", 3306)
         if err != nil {
             log.Fatalf("Failed to connect to MySQL: %v", err)
         }
@@ -149,7 +149,7 @@ func main() {
 
     r.GET("/generate-report", func(c *gin.Context) {
 
-        db, err := database.ConnectToMySQLwithTable("root", "", "localhost", "logistics", 3306)
+        db, err := database.ConnectToMySQLwithTable("my_user", "my_password", "logistics-db", "logistics", 3306)
         if err != nil {
             log.Fatalf("Failed to connect to MySQL: %v", err)
         }
@@ -179,7 +179,7 @@ func main() {
             return
         }
 
-        db, err := database.ConnectToMySQLwithTable("root", "", "localhost", "logistics", 3306)
+        db, err := database.ConnectToMySQLwithTable("my_user", "my_password", "logistics-db", "logistics", 3306)
         if err != nil {
             log.Fatalf("Failed to connect to MySQL: %v", err)
         }
