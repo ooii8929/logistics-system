@@ -9,6 +9,12 @@ on:
       - main
 
 jobs:
+  check:
+    runs-on:  https://github.com/golangci/golangci-lint:lastest
+    steps:
+      - run: go mod download
+      - run: golangci-lint run -v
+  
   build-and-push:
     runs-on: ubuntu-latest
     environment: prod
