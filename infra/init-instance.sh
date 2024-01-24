@@ -33,13 +33,11 @@ docker run -d --name logistics-db \
            -p 3306:3306 \
            ${ECR_REPOSITORY_DATABASE}:latest
 
-
 pwd
-
 
 echo "requirepass logisticsredis" > redis.conf
 # docker run -d --name redis-server --network my_app_network -p 6379:6379 -v "$(pwd)/redis.conf:/usr/local/etc/redis/redis.conf" -d redis:latest redis-server /usr/local/etc/redis/redis.conf
-docker run -d --name redis-server -p 6379:6379 -v "$(pwd)/redis.conf:/usr/local/etc/redis/redis.conf" -d redis:latest redis-server /usr/local/etc/redis/redis.conf
+docker run -d --name redis-server --network my_app_network -p 6379:6379 -v "$(pwd)/redis.conf:/usr/local/etc/redis/redis.conf" -d redis:latest redis-server /usr/local/etc/redis/redis.conf
 
 
 # 拉取并运行您的应用程序镜像

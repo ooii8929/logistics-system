@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  logistics-app:
+    image: 730461323800.dkr.ecr.ap-northeast-1.amazonaws.com/logistics-track
+    ports:
+      - "8080:8080"
+    networks:
+      - my_app_network
+
+  logistics-db:
+    image: 730461323800.dkr.ecr.ap-northeast-1.amazonaws.com/logistics-database
+    environment:
+      MYSQL_ROOT_PASSWORD: my-secret-pw
+      MYSQL_DATABASE: logistics
+      MYSQL_USER: my_user
+      MYSQL_PASSWORD: my_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - ../app/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - my_app_network
+
+  redis-server:
+    image: redis:latest
+    command: redis-server /usr/local/etc/redis/redis.conf
+    ports:
+      - "6379:6379"
+    networks:
+      - my_app_network
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    depends_on:
+      - logistics-app
+    networks:
+      - my_app_network
+
+networks:
+  my_app_network:
