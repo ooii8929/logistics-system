@@ -23,13 +23,6 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2.4.2
       
-    - name: Configure AWS credentials
-      run: echo "Configuring AWS credentials"
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_REGION: ap-northeast-1
-
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1.4.0
@@ -37,6 +30,10 @@ jobs:
         mask-password: true
         registry-type: private
         skip-logout: false
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: ap-northeast-1
 
     - name: Build and push Docker image
       uses: docker/build-push-action@v2.10.0
