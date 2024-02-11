@@ -10,26 +10,10 @@ on:
 
 jobs:
   check:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
+    runs-on:  https://github.com/golangci/golangci-lint:lastest
     steps:
-    - name: Set up Go
-      uses: actions/setup-go@f0fff3c2e641cfe6d97fb3660e43cd053980afdb # v2.1.5
-      with:
-        go-version: 1.17
-
-    - name: Checkout repository
-      uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # v2.4.2
-
-    - name: Install golangci-lint
-      run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.42.1
-
-    - name: Download dependencies
-      run: go mod download
-
-    - name: Lint code
-      run: golangci-lint run -v
+      - run: go mod download
+      - run: golangci-lint run -v
   
   build-and-push:
     runs-on: ubuntu-latest
