@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: redis-helm-app
+spec:
+  project: logistic
+  source:
+    repoURL: https://github.com/ooii8929/logistics-system.git
+    targetRevision: HEAD
+    path: infra/eks/redis-helm
+    helm:
+      valueFiles:
+        - values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    automated:
+      selfHeal: true

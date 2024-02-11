@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: logistic
+spec:
+  description: Logistic project
+
+  sourceRepos:
+    - "*"
+
+  destinations:
+    - server: "*"
+      namespace: "*"
+
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"
+
+  namespaceResourceWhitelist:
+    - group: "*"
+      kind: "*"
