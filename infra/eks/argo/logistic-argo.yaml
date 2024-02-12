@@ -1,13 +1,13 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: redis-helm-app
+  name: logistic-system-helm-app
 spec:
   project: logistic
   source:
     repoURL: https://github.com/ooii8929/logistics-system.git
     targetRevision: HEAD
-    path: infra/eks/helm-template/redis-helm
+    path: infra/eks/helm-template/logistic-system-helm
     helm:
       valueFiles:
         - values.yaml
