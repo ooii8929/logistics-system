@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "my-go-service.fullname" . }}
+  name: {{ include "logistic-system-helm.fullname" . }}
   labels:
-    {{- include "my-go-service.labels" . | nindent 4 }}
+    {{- include "logistic-system-helm.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      {{- include "my-go-service.selectorLabels" . | nindent 6 }}
+      {{- include "logistic-system-helm.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "my-go-service.selectorLabels" . | nindent 8 }}
+        {{- include "logistic-system-helm.selectorLabels" . | nindent 8 }}
     spec:
       containers:
         - name: {{ .Chart.Name }}

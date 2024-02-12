@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  repository: your-repo-name/my-go-service-image
+  repository: 038528481894.dkr.ecr.ap-northeast-1.amazonaws.com/logistics-track
   pullPolicy: IfNotPresent
   tag: latest
 

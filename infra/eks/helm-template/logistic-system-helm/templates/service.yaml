@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "my-go-service.fullname" . }}
+  name: {{ include "logistic-system-helm.fullname" . }}
   labels:
-    {{- include "my-go-service.labels" . | nindent 4 }}
+    {{- include "logistic-system-helm.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -12,4 +12,4 @@ spec:
       protocol: TCP
       name: http
   selector:
-    {{- include "my-go-service.selectorLabels" . | nindent 4 }}
+    {{- include "logistic-system-helm.selectorLabels" . | nindent 4 }}
