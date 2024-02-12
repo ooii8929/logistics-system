@@ -38,8 +38,8 @@ jobs:
         IMAGE_TAG: latest
         # IMAGE_TAG: ${{ github.sha }}
       run: |
-        aws sts get-caller-identity
         docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG ./app/.
+        docker images
         docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
         
     - name: Set up Docker Buildx
