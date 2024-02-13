@@ -88,7 +88,7 @@ func queryAPI(db *gorm.DB, sno int) ResponseData {
 
 func main() {
 
-	client, err := redis.ConnectRedis("redis-helm-app-redis:6379", "logisticsredis", 0)
+	client, err := redis.ConnectRedis("redis-helm-app-redis:6379", "", 0)
 	if err != nil {
 		panic(err)
 	}
