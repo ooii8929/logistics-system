@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: 038528481894.dkr.ecr.ap-northeast-1.amazonaws.com/logistics-track
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   tag: latest
 
 service:
